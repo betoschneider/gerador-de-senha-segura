@@ -1,0 +1,21 @@
+version: '3.7'
+services:
+  api:
+    build: './api'
+    container_name: api-container
+    restart: always
+    volumes:
+      - ./api:/home/python/app
+    ports:
+      - '5000:5000'
+
+  web:
+    build: './front'
+    container_name: streamlit-container
+    restart: always
+    volumes:
+      - ./front:/var/www/html
+    ports:
+      - '80:8502'  
+    depends_on:
+      - api
