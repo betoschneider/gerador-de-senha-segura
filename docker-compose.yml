@@ -7,7 +7,7 @@ services:
     volumes:
       - ./api:/home/python/app
     ports:
-      - '5000:5000'
+      - '5001:5000'
 
   web:
     build: './front'
@@ -16,6 +16,6 @@ services:
     volumes:
       - ./front:/var/www/html
     ports:
-      - '80:8502'  
+      - '8502:8502'  
     depends_on:
       - api

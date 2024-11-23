@@ -3,5 +3,6 @@ WORKDIR /app
 COPY . .
 RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
-CMD ["streamlit", "run", "--server.port", "80", "main.py"]
-EXPOSE 80
+EXPOSE 8502
+CMD ["streamlit", "run", "main.py", "--server.port=8502", "--server.address=0.0.0.0"]
+
