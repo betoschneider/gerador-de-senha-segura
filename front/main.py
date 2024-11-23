@@ -33,7 +33,7 @@ st.markdown("""
 st.header('Gerador de Senha Segura')
 
 # Seletor para alternar entre formulários
-form_choice = st.radio("Escolha o tipo:", ["Senha", "Frase Secreta"])
+form_choice = st.radio("Escolha o tipo:", ["Senha", "Frase Secreta"], index=1)
 
 if form_choice == "Senha":
     tipo = "senha"
