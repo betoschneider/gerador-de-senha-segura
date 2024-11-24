@@ -48,11 +48,13 @@ def gerar_senha():
                     fake.catch_phrase(),
                     fake.color_name(),
                     fake.job(),
-                    fake.month_name()
+                    fake.month_name(),
+                    fake.street_prefix(),
+                    fake.day_of_week()
                 ]) + " "
             
             # Remove caracteres especiais do texto
-            texto = re.sub(r'[^\w\s]', '', texto)
+            texto = re.sub(r'[^\w\s]', ' ', texto)
 
             # Função para remover acentos e cedilha
             def remover_acentos(texto):
