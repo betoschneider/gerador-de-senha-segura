@@ -3,6 +3,8 @@ from random import choice
 import string
 from faker import Faker
 import random
+import re
+import unicodedata
 import nltk
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
@@ -42,7 +44,23 @@ def gerar_senha():
             fake = Faker(locale='pt_BR')
             texto = ''
             for i in range(30):
-                texto += fake.catch_phrase() + ' '
+                texto += " ".join([
+                    fake.catch_phrase(),
+                    fake.color_name(),
+                    fake.job(),
+                    fake.month_name()
+                ]) + " "
+            
+            # Remove caracteres especiais do texto
+            texto = re.sub(r'[^\w\s]', '', texto)
+
+            # Função para remover acentos e cedilha
+            def remover_acentos(texto):
+                nfkd = unicodedata.normalize('NFKD', texto)
+                return "".join([char for char in nfkd if not unicodedata.combining(char)])
+            
+            # Remove acentos e cedilha
+            texto = remover_acentos(texto)
 
             # Tokeniza o texto (divide o texto em palavras)
             palavras = word_tokenize(texto, language='portuguese')
