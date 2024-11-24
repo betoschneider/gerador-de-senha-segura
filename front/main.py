@@ -80,7 +80,7 @@ elif form_choice == "Frase Secreta":
             'Número de palavras na frase',
             min_value=2,
             max_value=10,
-            value=4
+            value=3
         )
         iniciais_maiusculas = st.checkbox('Iniciais Em Maiúsculas', value=True)
         incluir_numeros = st.checkbox('Incluir números', value=True)
