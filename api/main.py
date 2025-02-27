@@ -43,9 +43,12 @@ def gerar_senha():
             # Geração dos textos
             fake = Faker(locale='pt_BR')
             texto = ''
-            for i in range(30):
+            for i in range(40):
                 texto += " ".join([
                     fake.catch_phrase(),
+                    fake.catch_phrase_attribute(),
+                    fake.catch_phrase_verb(),
+                    fake.first_name(),
                     fake.color_name(),
                     fake.job(),
                     fake.month_name(),
