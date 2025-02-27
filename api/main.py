@@ -41,18 +41,26 @@ def gerar_senha():
                 senha += choice(caracteres)
         elif tipo == 'frase':
             # Geração dos textos
-            fake = Faker(locale='pt_BR')
+            # fake = Faker(locale='pt_BR')
+            lang = request.args.get('lang')
+            lang_map = {
+                'pt_BR': 'portuguese',
+                'es_ES': 'spanish',
+                'en_US': 'english',
+                'fr_FR': 'french'
+            }
+            fake = Faker(locale=lang)
             texto = ''
             for i in range(40):
                 texto += " ".join([
                     fake.catch_phrase(),
-                    fake.catch_phrase_attribute(),
-                    fake.catch_phrase_verb(),
+                    fake.catch_phrase_attribute() if lang not in ['en_US', 'es_ES'] else '',
+                    fake.catch_phrase_verb() if lang not in ['en_US', 'es_ES'] else '',
                     fake.first_name(),
                     fake.color_name(),
                     fake.job(),
                     fake.month_name(),
-                    fake.street_prefix(),
+                    fake.street_prefix() if lang != 'en_US' else '',
                     fake.day_of_week()
                 ]) + " "
             
@@ -68,10 +76,10 @@ def gerar_senha():
             texto = remover_acentos(texto)
 
             # Tokeniza o texto (divide o texto em palavras)
-            palavras = word_tokenize(texto, language='portuguese')
+            palavras = word_tokenize(texto, language=lang_map[lang])
 
             # Obtém a lista de stopwords em português
-            stop_words = set(stopwords.words('portuguese'))
+            stop_words = set(stopwords.words(lang_map[lang]))
 
             # Filtra as palavras, removendo as stopwords
             palavras_filtradas = [palavra.lower() for palavra in palavras if palavra.lower() not in stop_words]
