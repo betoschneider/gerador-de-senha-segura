@@ -2,8 +2,8 @@ import streamlit as st
 import requests
 
 # Função para chamar a API e obter a senha
-def get_senha_api(tipo, tamanho, opcoes):
-    api_url = f'http://api:5001/senha?type={tipo}&len={tamanho}&options={opcoes}'
+def get_senha_api(tipo, tamanho, opcoes, linguagem):
+    api_url = f'http://api:5001/senha?type={tipo}&len={tamanho}&lang={linguagem}&options={opcoes}'
     try:
         response = requests.get(api_url)
         if response.status_code == 200:
@@ -65,7 +65,7 @@ if form_choice == "Senha":
         st.error('Ao menos uma opção deve ser selecionada.')
 
     if submit and len(opcoes) > 0:
-        senha_gerada = get_senha_api(tipo, tamanho, opcoes)
+        senha_gerada = get_senha_api(tipo, tamanho, opcoes, 'pt_BR')
         if senha_gerada:
             st.divider()
             col1, col2 = st.columns([1, 2])
@@ -85,6 +85,19 @@ elif form_choice == "Frase Secreta":
         iniciais_maiusculas = st.checkbox('Iniciais Em Maiúsculas', value=True)
         incluir_numeros = st.checkbox('Incluir números', value=True)
         separador = st.text_input('Separador', value='-')
+        
+        # Mapeamento das linguagens
+        linguagens = {
+            'Português': 'pt_BR',
+            'Espanhol': 'es_ES',
+            'Inglês': 'en_US',
+            'Francês': 'fr_FR'
+        }
+        linguagens_ordenada = sorted(list(linguagens.keys()))
+        index_padrao = linguagens_ordenada.index('Português')
+        linguagem_selecionada = st.selectbox('Idioma', linguagens_ordenada, index=index_padrao)
+        linguagem = linguagens[linguagem_selecionada]
+        
         submit_frase = st.form_submit_button('Gerar frase secreta')
     
     # Criando a string de opções
@@ -100,7 +113,7 @@ elif form_choice == "Frase Secreta":
     opcoes += separador[0]
 
     if submit_frase:
-        frase_gerada = get_senha_api(tipo, tamanho, opcoes)
+        frase_gerada = get_senha_api(tipo, tamanho, opcoes, linguagem)
         if frase_gerada:
             st.divider()
             col1, col2 = st.columns([1, 2])
