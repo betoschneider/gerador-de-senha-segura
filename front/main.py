@@ -89,7 +89,7 @@ elif form_choice == "Frase Secreta":
         # Mapeamento das linguagens
         linguagens = {
             'Português': 'pt_BR',
-            'Espanhol': 'es_ES',
+            'Espanhol': 'es_CL',
             'Inglês': 'en_US',
             'Francês': 'fr_FR'
         }

@@ -45,7 +45,7 @@ def gerar_senha():
             lang = request.args.get('lang')
             lang_map = {
                 'pt_BR': 'portuguese',
-                'es_ES': 'spanish',
+                'es_CL': 'spanish',
                 'en_US': 'english',
                 'fr_FR': 'french'
             }
@@ -54,13 +54,13 @@ def gerar_senha():
             for i in range(40):
                 texto += " ".join([
                     fake.catch_phrase(),
-                    fake.catch_phrase_attribute() if lang not in ['en_US', 'es_ES'] else '',
-                    fake.catch_phrase_verb() if lang not in ['en_US', 'es_ES'] else '',
+                    fake.catch_phrase_attribute() if lang not in ['en_US', 'es_CL'] else '',
+                    fake.catch_phrase_verb() if lang not in ['en_US', 'es_CL'] else '',
                     fake.first_name(),
                     fake.color_name(),
                     fake.job(),
                     fake.month_name(),
-                    fake.street_prefix() if lang != 'en_US' else '',
+                    fake.street_prefix() if lang not in ['en_US', 'es_CL'] else '',
                     fake.day_of_week()
                 ]) + " "
             
