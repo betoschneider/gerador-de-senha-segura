@@ -18,7 +18,7 @@ def get_senha_api(tipo, tamanho, opcoes, linguagem):
 
 # Configuração da página e ocultação de elementos padrão do Streamlit
 st.set_page_config(
-    page_title="Teste - Gerador de Senha Segura - betoschneider.com ",
+    page_title="Gerador de Senha Segura - betoschneider.com ",
     page_icon="🔒",
 )
 st.markdown("""
