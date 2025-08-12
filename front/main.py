@@ -17,7 +17,10 @@ def get_senha_api(tipo, tamanho, opcoes, linguagem):
         return None
 
 # Configuração da página e ocultação de elementos padrão do Streamlit
-st.set_page_config(page_title="Gerador de Senha Segura")
+st.set_page_config(
+    page_title="Gerador de Senha Segura - betoschneider.com ",
+    page_icon="🔒",
+)
 st.markdown("""
     <style>
         .reportview-container {
