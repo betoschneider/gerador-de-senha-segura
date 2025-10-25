@@ -62,8 +62,8 @@ docker compose up -d
 ```
 
 ### 3. Acesse a aplicação
--Frontend: http://localhost:8502
--API: http://localhost:5001/password
+- Frontend: http://localhost:8502
+- API: http://localhost:5001/password
 
 ## 🧪 Exemplos de Uso
 ### 🔐 Senha
@@ -72,7 +72,9 @@ GET /password?type=frase&len=4&lang=pt_BR&upper=true&num=true&special=true
 → "Dados.Azul3.Luz#Ana"
 ```
 
+---
+
 ## 👨‍💻 Autor
-**Roberto Schneider**
+**Roberto Schneider**  
 Desenvolvedor e entusiasta de automação, segurança e aplicações web modernas.
-🌐 [betoschneider.com]
+🌐 [betoschneider.com](https://betoschneider.com)
