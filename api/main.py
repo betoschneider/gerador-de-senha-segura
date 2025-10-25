@@ -8,41 +8,64 @@ import unicodedata
 import nltk
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
-# Baixar as stopwords do NLTK (apenas uma vez)
+
+# Baixar recursos do NLTK (executado apenas uma vez)
 nltk.download('stopwords')
 nltk.download('punkt_tab')
 
 app = Flask(__name__)
 
-@app.route('/senha', methods=['GET'])
+@app.route('/password', methods=['GET'])
 def gerar_senha():
     try:
-        # define as variáveis com os argumentos da url
-        tipo = request.args.get('type')
-        tamanho = int(request.args.get('len'))
-        opcoes = request.args.get('options').replace('[', '').replace(']', '').replace("'", '').replace(' ', '')
+        tipo = request.args.get('type', 'senha')  # 'senha' ou 'frase'
+        tamanho = int(request.args.get('len', 12))
+        lang = request.args.get('lang', 'pt_BR')
 
-        # Para geração de senha
+        # Flags REST-friendly
+        upper = request.args.get('upper', 'true').lower() == 'true'
+        lower = request.args.get('lower', 'true').lower() == 'true'
+        num = request.args.get('num', 'true').lower() == 'true'
+        special = request.args.get('special', 'false').lower() == 'true'
+
+        # ==============================
+        # GERAÇÃO DE SENHA
+        # ==============================
         if tipo == 'senha':
-            caracteres = ''
-            for opcao in opcoes.split(','):
-                if opcao == 'uppercase':
-                    caracteres += string.ascii_uppercase
-                if opcao == 'lowercase':
-                    caracteres += string.ascii_lowercase
-                if opcao == 'number':
-                    caracteres += string.digits
-                if opcao == 'symbol':
-                    caracteres += string.punctuation
-            
+            # Definição dos grupos de caracteres
+            grupos = []
+            if upper:
+                grupos.append(string.ascii_uppercase)
+            if lower:
+                grupos.append(string.ascii_lowercase)
+            if num:
+                grupos.append(string.digits)
+            if special:
+                grupos.append("#!@.$%&*")  # conjunto restrito
+
+            if not grupos:
+                return jsonify({'error': 'Nenhum conjunto de caracteres selecionado.'}), 400
+
             tamanho = max(min(tamanho, 25), 4)
-            senha = ''
-            for i in range(tamanho):
-                senha += choice(caracteres)
+
+            # Garante pelo menos 1 caractere de cada grupo escolhido
+            senha_chars = [choice(grupo) for grupo in grupos]
+
+            # Preenche o restante com caracteres de todos os grupos combinados
+            todos_caracteres = ''.join(grupos)
+            restantes = tamanho - len(senha_chars)
+
+            senha_chars += [choice(todos_caracteres) for _ in range(restantes)]
+
+            # Embaralha para não ficar previsível
+            random.shuffle(senha_chars)
+
+            senha = ''.join(senha_chars)
+
+        # ==============================
+        # GERAÇÃO DE FRASE SECRETA
+        # ==============================
         elif tipo == 'frase':
-            # Geração dos textos
-            # fake = Faker(locale='pt_BR')
-            lang = request.args.get('lang')
             lang_map = {
                 'pt_BR': 'portuguese',
                 'es_CL': 'spanish',
@@ -50,78 +73,60 @@ def gerar_senha():
                 'fr_FR': 'french'
             }
             fake = Faker(locale=lang)
-            texto = ''
-            for i in range(40):
-                texto += " ".join([
+            texto = " ".join(
+                " ".join([
                     fake.catch_phrase(),
                     fake.catch_phrase_attribute() if lang not in ['en_US', 'es_CL'] else '',
                     fake.catch_phrase_verb() if lang not in ['en_US', 'es_CL'] else '',
-                    fake.first_name(),
+                    # fake.first_name(),
                     fake.color_name(),
                     fake.job(),
                     fake.month_name(),
                     fake.street_prefix() if lang not in ['en_US', 'es_CL'] else '',
                     fake.day_of_week()
-                ]) + " "
-            
-            # Remove caracteres especiais do texto
+                ])
+                for _ in range(80)
+            )
+
+            # Remove caracteres especiais e acentuação
             texto = re.sub(r'[^\w\s]', ' ', texto)
+            texto = "".join(
+                c for c in unicodedata.normalize('NFKD', texto)
+                if not unicodedata.combining(c)
+            )
 
-            # Função para remover acentos e cedilha
-            def remover_acentos(texto):
-                nfkd = unicodedata.normalize('NFKD', texto)
-                return "".join([char for char in nfkd if not unicodedata.combining(char)])
-            
-            # Remove acentos e cedilha
-            texto = remover_acentos(texto)
-
-            # Tokeniza o texto (divide o texto em palavras)
-            palavras = word_tokenize(texto, language=lang_map[lang])
-
-            # Obtém a lista de stopwords em português
-            stop_words = set(stopwords.words(lang_map[lang]))
-
-            # Filtra as palavras, removendo as stopwords
-            palavras_filtradas = [palavra.lower() for palavra in palavras if palavra.lower() not in stop_words]
-
-            # Removendo palavras duplicadas
+            # Tokenização e filtragem
+            palavras = word_tokenize(texto, language=lang_map.get(lang, 'portuguese'))
+            stop_words = set(stopwords.words(lang_map.get(lang, 'portuguese')))
+            palavras_filtradas = [p.lower() for p in palavras if p.lower() not in stop_words]
             palavras_filtradas = list(dict.fromkeys(palavras_filtradas))
-            qtd_filtradas = len(palavras_filtradas) # total de palavras filtradas
 
-            # Faz a seleção para gerar a frase secreta
-            qtd_palavras = tamanho # quantidade de palavras na frase secreta
-            if "º" not in opcoes:
-                separador = opcoes[-1] # separador das palavras
-            else:
-                separador = ""
+            if not palavras_filtradas:
+                return jsonify({'error': 'Falha ao gerar palavras para a frase.'}), 500
 
-            frase_secreta = []
-            for i in range(qtd_palavras):
-                # seleciona a palavra
-                palavra = palavras_filtradas[random.randint(0, qtd_filtradas - 1)]
-                
-                # seleciona outra palavra caso já esteja na frase secreta
-                while palavra in frase_secreta:
-                    palavra = palavras_filtradas[random.randint(0, qtd_filtradas - 1)]
-                
-                # adiciona a palavra selecionada na frase secreta
-                frase_secreta.append(palavra)
+            # Gera a frase secreta
+            qtd_palavras = max(min(tamanho, 15), 2)
+            frase_secreta = random.sample(palavras_filtradas, qtd_palavras)
 
-            # Transforma primeira letra em maiúscula
-            if 'uppercase' in opcoes:
-                frase_secreta = [palavra.capitalize() for palavra in frase_secreta]
+            # Aplicar opções
+            if upper:
+                frase_secreta = [p.capitalize() for p in frase_secreta]
+            if num:
+                idx = random.randint(0, len(frase_secreta) - 1)
+                frase_secreta[idx] += str(random.randint(0, 9))
 
-            # Adiciona um número
-            if 'number' in opcoes:
-                id_palavra = random.randint(0, qtd_palavras - 1)
-                frase_secreta[id_palavra] = frase_secreta[id_palavra] + str(random.randint(0, 9))
-
-            # Concatena a frase com o sparador
+            # 🔒 Sempre usar separador aleatório de #!@.$%&*
+            separador = random.choice("#!@.$%&*")
             senha = separador.join(frase_secreta)
-        
-        return {'senha': senha}, 200
-    except:
-        return {'message': 'Um erro ocorreu ao tentar gerar a senha.'}, 500
+
+        else:
+            return jsonify({'error': 'Tipo inválido. Use "senha" ou "frase".'}), 400
+
+        return jsonify({'password': senha}), 200
+
+    except Exception as e:
+        return jsonify({'message': 'Erro ao gerar senha.', 'detalhe': str(e)}), 500
+
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=5001)

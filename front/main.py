@@ -2,13 +2,13 @@ import streamlit as st
 import requests
 
 # Função para chamar a API e obter a senha
-def get_senha_api(tipo, tamanho, opcoes, linguagem):
-    api_url = f'http://api:5001/senha?type={tipo}&len={tamanho}&lang={linguagem}&options={opcoes}'
+def get_senha_api(tipo='senha', len=3, upper=True, lower=True, num=True, special=True, idioma='pt_BR'):
+    api_url = f'http://api:5001/password?type={tipo}&len={len}&upper={upper}&lower={lower}&num={num}&special={special}&lang={idioma}'
     try:
         response = requests.get(api_url)
         if response.status_code == 200:
             data = response.json()
-            return data.get('senha')
+            return data.get('password')
         else:
             st.error(f"Erro ao chamar a API: {response.status_code}")
             return None
@@ -16,16 +16,14 @@ def get_senha_api(tipo, tamanho, opcoes, linguagem):
         st.error(f"Erro ao chamar a API: {e}")
         return None
 
-# Configuração da página e ocultação de elementos padrão do Streamlit
+# Configuração da página
 st.set_page_config(
-    page_title="Gerador de Senha Segura - betoschneider.com ",
+    page_title="Gerador de Senha Segura - betoschneider.com",
     page_icon="🔒",
 )
 st.markdown("""
     <style>
-        .reportview-container {
-            margin-top: -2em;
-        }
+        .reportview-container { margin-top: -2em; }
         #MainMenu {visibility: hidden;}
         .stDeployButton {display:none;}
         footer {visibility: hidden;}
@@ -35,40 +33,40 @@ st.markdown("""
 
 st.header('Gerador de Senha Segura')
 
-# Seletor para alternar entre formulários
-form_choice = st.radio("Escolha o tipo:", ["Senha", "Frase Secreta"], index=1)
+# Seletor principal
+form_choice = st.pills(
+    "Escolha o tipo:",
+    options=["Frase Secreta", "Senha"],
+    selection_mode="single",
+    default="Frase Secreta",
+)
 
+# ========================================
+# FORMULÁRIO PARA SENHA
+# ========================================
 if form_choice == "Senha":
     tipo = "senha"
+
     with st.form('senha_segura'):
-        tamanho = st.number_input(
+        len = st.number_input(
             'Tamanho da senha',
             min_value=4,
             max_value=25,
             value=12
         )
-        opcao1 = st.checkbox('Letra maiúscula', value=True)
-        opcao2 = st.checkbox('Letra minúscula', value=True)
-        opcao3 = st.checkbox('Número', value=True)
-        opcao4 = st.checkbox('Símbolo', value=True)
+        upper = st.checkbox('Letra maiúscula', value=True)
+        lower = st.checkbox('Letra minúscula', value=True)
+        num = st.checkbox('Número', value=True)
+        special = st.checkbox('Símbolo', value=True)
         submit = st.form_submit_button('Gerar senha')
 
-    # Criando a string de opções
-    opcoes = ''
-    if opcao1:
-        opcoes += 'uppercase,'
-    if opcao2:
-        opcoes += 'lowercase,'
-    if opcao3:
-        opcoes += 'number,'
-    if opcao4:
-        opcoes += 'symbol,'
+    selecao = any([upper, lower, num, special])
 
-    if len(opcoes) == 0:
+    if not selecao:
         st.error('Ao menos uma opção deve ser selecionada.')
 
-    if submit and len(opcoes) > 0:
-        senha_gerada = get_senha_api(tipo, tamanho, opcoes, 'pt_BR')
+    if submit and selecao:
+        senha_gerada = get_senha_api(tipo, len, upper, lower, num, special)
         if senha_gerada:
             st.divider()
             col1, col2 = st.columns([1, 2])
@@ -76,18 +74,20 @@ if form_choice == "Senha":
             col2.text(senha_gerada)
             st.divider()
 
+# ========================================
+# FORMULÁRIO PARA FRASE SECRETA
+# ========================================
 elif form_choice == "Frase Secreta":
     tipo = "frase"
     with st.form('frase_secreta'):
-        tamanho = st.number_input(
+        len = st.number_input(
             'Número de palavras na frase',
             min_value=2,
             max_value=10,
             value=3
         )
-        iniciais_maiusculas = st.checkbox('Iniciais Em Maiúsculas', value=True)
-        incluir_numeros = st.checkbox('Incluir números', value=True)
-        separador = st.text_input('Separador', value='-')
+        upper = st.checkbox('Iniciais Em Maiúsculas', value=True)
+        num = st.checkbox('Incluir números', value=True)
         
         # Mapeamento das linguagens
         linguagens = {
@@ -99,24 +99,15 @@ elif form_choice == "Frase Secreta":
         linguagens_ordenada = sorted(list(linguagens.keys()))
         index_padrao = linguagens_ordenada.index('Português')
         linguagem_selecionada = st.selectbox('Idioma', linguagens_ordenada, index=index_padrao)
-        linguagem = linguagens[linguagem_selecionada]
+        idioma = linguagens[linguagem_selecionada]
         
         submit_frase = st.form_submit_button('Gerar frase secreta')
+        lower = True  # Não usados na geração de frase
+        special = True # Não usados na geração de frase
     
-    # Criando a string de opções
-    opcoes = ''
-    if iniciais_maiusculas:
-        opcoes += 'uppercase,'
-    if incluir_numeros:
-        opcoes += 'number,'
     
-    # Adicionando o separador
-    if not separador:
-        separador = 'º'
-    opcoes += separador[0]
-
     if submit_frase:
-        frase_gerada = get_senha_api(tipo, tamanho, opcoes, linguagem)
+        frase_gerada = get_senha_api(tipo, len, upper, lower, num, special, idioma)
         if frase_gerada:
             st.divider()
             col1, col2 = st.columns([1, 2])
