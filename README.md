@@ -68,8 +68,14 @@ docker compose up -d
 ## 🧪 Exemplos de Uso
 ### 🔐 Senha
 ```bash
+GET /password?type=senha&len=10&upper=true&lower=true&num=true&special=false
+→ "Ac3pLnVgWh"
+```
+
+### 💬 Frase Secreta
+```bash
 GET /password?type=frase&len=4&lang=pt_BR&upper=true&num=true&special=true
-→ "Dados.Azul3.Luz#Ana"
+→ "Dados.Azul3.Luz"
 ```
 
 ---
