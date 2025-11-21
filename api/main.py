@@ -1,4 +1,6 @@
-from flask import Flask, request, jsonify
+from fastapi import FastAPI, Query, HTTPException
+from fastapi.responses import RedirectResponse
+from fastapi.middleware.cors import CORSMiddleware
 from random import choice
 import string
 from faker import Faker
@@ -13,28 +15,40 @@ from nltk.tokenize import word_tokenize
 nltk.download('stopwords')
 nltk.download('punkt_tab')
 
-from flask_cors import CORS
+app = FastAPI(
+    title="Gerador de Senha Segura API",
+    description="API para geração de senhas fortes e frases secretas.",
+    version="1.0.0"
+)
 
-app = Flask(__name__)
-CORS(app)
+@app.get("/", include_in_schema=False)
+def read_root():
+    return RedirectResponse(url="/docs")
 
-@app.route('/password', methods=['GET'])
-def gerar_senha():
+# Configuração de CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+@app.get("/password")
+def gerar_senha(
+    type: str = Query("senha", pattern="^(senha|frase)$"),
+    lenght: int = Query(12, alias="len", ge=2, le=50),
+    lang: str = Query("pt_BR", pattern="^(pt_BR|es_CL|en_US|fr_FR)$"),
+    upper: bool = Query(True),
+    lower: bool = Query(True),
+    num: bool = Query(True),
+    special: bool = Query(False),
+):
     try:
-        tipo = request.args.get('type', 'senha')  # 'senha' ou 'frase'
-        tamanho = int(request.args.get('len', 12))
-        lang = request.args.get('lang', 'pt_BR')
-
-        # Flags REST-friendly
-        upper = request.args.get('upper', 'true').lower() == 'true'
-        lower = request.args.get('lower', 'true').lower() == 'true'
-        num = request.args.get('num', 'true').lower() == 'true'
-        special = request.args.get('special', 'false').lower() == 'true'
-
         # ==============================
         # GERAÇÃO DE SENHA
         # ==============================
-        if tipo == 'senha':
+        if type == 'senha':
             # Definição dos grupos de caracteres
             grupos = []
             if upper:
@@ -44,44 +58,42 @@ def gerar_senha():
             if num:
                 grupos.append(string.digits)
             if special:
-                grupos.append("#!@.$%&*")  # conjunto restrito
+                grupos.append("#!@.$%&*")
 
             if not grupos:
-                return jsonify({'error': 'Nenhum conjunto de caracteres selecionado.'}), 400
-
-            tamanho = max(min(tamanho, 25), 4)
+                raise HTTPException(status_code=400, detail="Nenhum conjunto de caracteres selecionado.")
+            
+            lenght = max(min(lenght, 25), 4)
 
             # Garante pelo menos 1 caractere de cada grupo escolhido
             senha_chars = [choice(grupo) for grupo in grupos]
 
             # Preenche o restante com caracteres de todos os grupos combinados
             todos_caracteres = ''.join(grupos)
-            restantes = tamanho - len(senha_chars)
-
+            restantes = lenght - len(senha_chars)
             senha_chars += [choice(todos_caracteres) for _ in range(restantes)]
 
-            # Embaralha para não ficar previsível
             random.shuffle(senha_chars)
-
             senha = ''.join(senha_chars)
 
         # ==============================
         # GERAÇÃO DE FRASE SECRETA
         # ==============================
-        elif tipo == 'frase':
+        else: # type == 'frase'
             lang_map = {
                 'pt_BR': 'portuguese',
                 'es_CL': 'spanish',
                 'en_US': 'english',
                 'fr_FR': 'french'
             }
+
+            # Faker
             fake = Faker(locale=lang)
             texto = " ".join(
                 " ".join([
                     fake.catch_phrase(),
                     fake.catch_phrase_attribute() if lang not in ['en_US', 'es_CL'] else '',
                     fake.catch_phrase_verb() if lang not in ['en_US', 'es_CL'] else '',
-                    # fake.first_name(),
                     fake.color_name(),
                     fake.job(),
                     fake.month_name(),
@@ -91,7 +103,7 @@ def gerar_senha():
                 for _ in range(80)
             )
 
-            # Remove caracteres especiais e acentuação
+            # Limpeza
             texto = re.sub(r'[^\w\s]', ' ', texto)
             texto = "".join(
                 c for c in unicodedata.normalize('NFKD', texto)
@@ -105,10 +117,10 @@ def gerar_senha():
             palavras_filtradas = list(dict.fromkeys(palavras_filtradas))
 
             if not palavras_filtradas:
-                return jsonify({'error': 'Falha ao gerar palavras para a frase.'}), 500
+                raise HTTPException(status_code=500, detail="Falha ao gerar palavras para a frase.")
 
-            # Gera a frase secreta
-            qtd_palavras = max(min(tamanho, 15), 2)
+            # Seleção
+            qtd_palavras = max(min(lenght, 15), 2)
             frase_secreta = random.sample(palavras_filtradas, qtd_palavras)
 
             # Aplicar opções
@@ -118,17 +130,16 @@ def gerar_senha():
                 idx = random.randint(0, len(frase_secreta) - 1)
                 frase_secreta[idx] += str(random.randint(0, 9))
 
-            # 🔒 Sempre usar separador aleatório de #!@.$%&*
+            # Separação
             separador = random.choice("#!@.$%&*")
             senha = separador.join(frase_secreta)
 
-        else:
-            return jsonify({'error': 'Tipo inválido. Use "senha" ou "frase".'}), 400
-
-        return jsonify({'password': senha}), 200
+        return {'password': senha}
 
     except Exception as e:
-        return jsonify({'message': 'Erro ao gerar senha.', 'detalhe': str(e)}), 500
+        if isinstance(e, HTTPException):
+            raise e
+        raise HTTPException(status_code=500, detail=str(e)) 
 
 
 if __name__ == '__main__':

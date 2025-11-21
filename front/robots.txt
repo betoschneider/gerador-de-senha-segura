@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://betoschneider.com/senha/sitemap.xml
