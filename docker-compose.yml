@@ -7,15 +7,15 @@ services:
     volumes:
       - ./api:/home/python/app
     ports:
-      - '5001:5000'
+      - '5000:5000'
 
   web:
     build: './front'
     container_name: streamlit-container
     restart: always
     volumes:
-      - ./front:/var/www/html
+      - ./front:/usr/share/nginx/html
     ports:
-      - '8502:8502'  
+      - '8502:80'
     depends_on:
       - api

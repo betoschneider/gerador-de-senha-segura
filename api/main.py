@@ -13,7 +13,10 @@ from nltk.tokenize import word_tokenize
 nltk.download('stopwords')
 nltk.download('punkt_tab')
 
+from flask_cors import CORS
+
 app = Flask(__name__)
+CORS(app)
 
 @app.route('/password', methods=['GET'])
 def gerar_senha():
@@ -129,4 +132,4 @@ def gerar_senha():
 
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=5001)
+    app.run(host="0.0.0.0", port=5000)

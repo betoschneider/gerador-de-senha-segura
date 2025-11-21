@@ -1,39 +1,24 @@
 # 🔒 Gerador de Senha Segura
 
-Aplicação web desenvolvida com **Flask** (backend) e **Streamlit** (frontend) para gerar **senhas seguras** e **frases secretas** de forma personalizável, com layout moderno e API REST-friendly.
+Aplicação web moderna desenvolvida com **Flask** (backend) e **HTML/CSS/JS** (frontend) para gerar **senhas seguras** e **frases secretas** de forma personalizável.
+
+Acesse o [Gerador de Senha Segura](https://betoschneider.com/senha/).
 
 ---
 
 ## 🚀 Principais Atualizações
 
+### ✨ **Nova Interface (Frontend)**
+- Interface totalmente refeita utilizando **HTML5, CSS3 e JavaScript Vanilla**.
+- **Modo Escuro/Claro**: Alternância de tema com persistência de preferência.
+- **Design Responsivo**: Otimizado para desktop e mobile.
+- **Cópia Rápida**: Botão integrado para copiar a senha gerada para a área de transferência.
+- Servido via **Nginx** em container Docker.
+
 ### 🔗 **API REST-friendly**
-A API agora segue um padrão mais limpo e consistente, facilitando o uso por outras aplicações.
-
-**Endpoint atualizado:**
-
----
-
-### 🧩 **Geração de Senhas**
-- Agora a senha **garante que todas as opções selecionadas estarão presentes**  
-  (ex: se `upper`, `lower` e `num` forem `True`, a senha terá ao menos um caractere de cada tipo).
-- O conjunto de caracteres especiais foi **restringido**.
-
-- Tamanho máximo limitado a 25 caracteres para segurança e legibilidade.
-
----
-
-### ✍️ **Geração de Frases Secretas**
-- As frases são geradas a partir de um corpus dinâmico criado com a biblioteca `Faker`, em diferentes idiomas (`pt_BR`, `en_US`, `es_CL`, `fr_FR`).
-- Sempre inclui **um separador aleatório** sorteado.
-- O separador não é mais configurável no frontend (removido o input manual).
-- As opções de **iniciais maiúsculas** e **números aleatórios** continuam disponíveis.
-
----
-
-### 💅 **Interface Atualizada (Frontend)**
-- O seletor principal foi atualizado de `radio` para **pílulas interativas** (`st.pills`), proporcionando uma experiência moderna e fluida.
-- Layout simplificado, removendo o campo de escolha do separador para frases secretas.
-- Mensagens de erro e validação mais claras, impedindo geração sem opções válidas.
+- Backend em Flask padronizado na porta **5000**.
+- Suporte a **CORS** para permitir comunicação segura com o frontend.
+- Endpoints otimizados para geração de senhas e frases.
 
 ---
 
@@ -42,8 +27,9 @@ A API agora segue um padrão mais limpo e consistente, facilitando o uso por out
 | Camada | Tecnologia |
 |---------|-------------|
 | Backend | Flask, Faker, NLTK |
-| Frontend | Streamlit |
-| Containerização | Docker |
+| Frontend | HTML5, CSS3, JavaScript |
+| Servidor Web | Nginx (Alpine) |
+| Containerização | Docker & Docker Compose |
 | Linguagem | Python 3.10+ |
 
 ---
@@ -58,14 +44,17 @@ cd gerador-de-senha-segura
 
 ### 2. Suba os containers
 ```bash
-docker compose up -d
+docker-compose up --build
 ```
 
 ### 3. Acesse a aplicação
-- Frontend: http://localhost:8502
-- API: http://localhost:5001/password
+- **Frontend**: http://localhost:8502
+- **API**: http://localhost:5000/password
 
-## 🧪 Exemplos de Uso
+---
+
+## 🧪 Exemplos de Uso da API
+
 ### 🔐 Senha
 ```bash
 GET /password?type=senha&len=10&upper=true&lower=true&num=true&special=false
@@ -82,5 +71,5 @@ GET /password?type=frase&len=4&lang=pt_BR&upper=true&num=true&special=true
 
 ## 👨‍💻 Autor
 **Roberto Schneider**  
-Desenvolvedor e entusiasta de automação, segurança e aplicações web modernas.
+Desenvolvedor e entusiasta de automação, segurança e aplicações web modernas.  
 🌐 [betoschneider.com](https://betoschneider.com)
