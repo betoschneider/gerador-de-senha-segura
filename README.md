@@ -26,7 +26,7 @@ Acesse o [Gerador de Senha Segura](https://betoschneider.com/senha/).
 
 | Camada | Tecnologia |
 |---------|-------------|
-| Backend | Flask, Faker, NLTK |
+| Backend | FastAPI, Faker, NLTK |
 | Frontend | HTML5, CSS3, JavaScript |
 | Servidor Web | Nginx (Alpine) |
 | Containerização | Docker & Docker Compose |
