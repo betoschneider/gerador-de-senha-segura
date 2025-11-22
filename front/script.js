@@ -34,11 +34,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
             const query = new URLSearchParams(params).toString();
-            // Using relative URL, assuming Nginx reverse proxy or same host
-            // Since we are in docker, we might need to hit localhost:5000 if running locally without proxy,
-            // BUT, the browser runs on the host machine.
-            // The API is exposed on port 5000.
-            const apiUrl = `http://localhost:5000/password?type=${type}&${query}`;
+            // Using relative URL, proxied by Nginx to the API container
+            // No leading slash to support subpath deployments (e.g. /senha)
+            const apiUrl = `api/password?type=${type}&${query}`;
 
             const response = await fetch(apiUrl);
             const data = await response.json();
@@ -50,7 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } catch (error) {
             console.error(error);
-            alert('Erro ao conectar com a API. Verifique se ela está rodando.');
+            alert(`Erro ao conectar com a API.\nURL: ${apiUrl}\nErro: ${error.message}`);
         } finally {
             btn.textContent = originalText;
             btn.disabled = false;
