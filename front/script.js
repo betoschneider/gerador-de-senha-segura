@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } catch (error) {
             console.error(error);
-            alert(`Erro ao conectar com a API.\nURL: ${apiUrl}\nErro: ${error.message}`);
+            alert('Erro ao conectar com a API. Verifique se ela está rodando.');
         } finally {
             btn.textContent = originalText;
             btn.disabled = false;
