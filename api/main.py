@@ -131,7 +131,7 @@ def gerar_senha(
                 frase_secreta[idx] += str(random.randint(0, 9))
 
             # Separação
-            separador = random.choice("#!@.$%&*")
+            separador = random.choice(".") # random.choice("#!@.$%&*")
             senha = separador.join(frase_secreta)
 
         return {'password': senha}
