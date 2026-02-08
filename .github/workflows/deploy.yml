@@ -28,4 +28,4 @@ jobs:
           docker image prune -f  
       
       - name: 🏥 Check Health
-        run: docker ps | grep password-api
+        run: docker ps | grep api-container
