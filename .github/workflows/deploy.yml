@@ -13,11 +13,11 @@ jobs:
       - name: 🚀 Deploy na pasta local existente
         run: |
           echo "📂 Acessando pasta do projeto..."
-          cd /home/beto/projetos/gerador-de-senha-segura
+          cd /home/dev-host/projetos/gerador-de-senha-segura
           
           echo "⬇️ Atualizando código via Git..."
           # Garante que o git confie na pasta (segurança do git moderno)
-          git config --global --add safe.directory /home/beto/projetos/gerador-de-senha-segura
+          git config --global --add safe.directory /home/dev-host/projetos/gerador-de-senha-segura
           
           git fetch origin main
           git reset --hard origin/main
