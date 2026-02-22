@@ -1,6 +1,6 @@
 # 🔒 Gerador de Senha Segura
 
-Aplicação web moderna desenvolvida com **Flask** (backend) e **HTML/CSS/JS** (frontend) para gerar **senhas seguras** e **frases secretas** de forma personalizável.
+Aplicação web moderna desenvolvida com **FastAPI** (backend) e **HTML/CSS/JS** (frontend) para gerar **senhas seguras** e **frases secretas** de forma personalizável.
 
 Acesse o [Gerador de Senha Segura](https://betoschneider.com/senha/).
 
