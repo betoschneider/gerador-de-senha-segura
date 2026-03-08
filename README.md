@@ -8,17 +8,15 @@ Acesse o [Gerador de Senha Segura](https://betoschneider.com/senha/).
 
 ## 🚀 Principais Atualizações
 
-### ✨ **Nova Interface (Frontend)**
-- Interface totalmente refeita utilizando **HTML5, CSS3 e JavaScript Vanilla**.
-- **Modo Escuro/Claro**: Alternância de tema com persistência de preferência.
-- **Design Responsivo**: Otimizado para desktop e mobile.
-- **Cópia Rápida**: Botão integrado para copiar a senha gerada para a área de transferência.
-- Servido via **Nginx** em container Docker.
+### 🔒 **Segurança e Análise de Força**
+- **Integração com zxcvbn**: Análise profunda da complexidade da senha/frase.
+- **Tempo de Quebra**: Estimativa realista do tempo necessário para um ataque offline.
+- **Feedback Visual**: Destaque automático (cor vermelha) para senhas consideradas fracas.
 
 ### 🔗 **API REST-friendly**
-- Backend em Flask padronizado na porta **5000**.
-- Suporte a **CORS** para permitir comunicação segura com o frontend.
-- Endpoints otimizados para geração de senhas e frases.
+- Backend em **FastAPI** padronizado na porta **5000**.
+- Suporte a **CORS** para comunicação segura.
+- Endpoints que retornam não só a senha, mas também o `score` (0-4) e o `time` estimado.
 
 ---
 
@@ -26,11 +24,11 @@ Acesse o [Gerador de Senha Segura](https://betoschneider.com/senha/).
 
 | Camada | Tecnologia |
 |---------|-------------|
-| Backend | FastAPI, Faker, NLTK |
+| Backend | FastAPI, Faker, NLTK, **zxcvbn** |
 | Frontend | HTML5, CSS3, JavaScript |
 | Servidor Web | Nginx (Alpine) |
 | Containerização | Docker & Docker Compose |
-| Linguagem | Python 3.10+ |
+| Linguagem | Python 3.12+ |
 
 ---
 
@@ -58,13 +56,21 @@ docker-compose up --build
 ### 🔐 Senha
 ```bash
 GET /password?type=senha&len=10&upper=true&lower=true&num=true&special=false
-→ "Ac3pLnVgWh"
+→ {
+    "password": "Ac3pLnVgWh",
+    "score": 3,
+    "time": "8 days"
+  }
 ```
 
 ### 💬 Frase Secreta
 ```bash
 GET /password?type=frase&len=4&lang=pt_BR&upper=true&num=true&special=true
-→ "Dados.Azul3.Luz"
+→ {
+    "password": "Dados.Azul3.Luz",
+    "score": 4,
+    "time": "centuries"
+  }
 ```
 
 ---

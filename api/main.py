@@ -10,6 +10,7 @@ import unicodedata
 import nltk
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
+from zxcvbn import zxcvbn
 
 # Baixar recursos do NLTK (executado apenas uma vez)
 nltk.download('stopwords')
@@ -21,10 +22,6 @@ app = FastAPI(
     version="1.0.0"
 )
 
-@app.get("/", include_in_schema=False)
-def read_root():
-    return RedirectResponse(url="/docs")
-
 # Configuração de CORS
 app.add_middleware(
     CORSMiddleware,
@@ -33,6 +30,21 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.get("/", include_in_schema=False)
+def read_root():
+    return RedirectResponse(url="/docs")
+
+def teste_senha(senha: str):
+    resultado = zxcvbn(senha)
+    score = resultado['score']
+    tempo = resultado['crack_times_display']['offline_slow_hashing_1e4_per_second']
+    return [score, tempo]
+
+@app.get("/test-password")
+def test_password_endpoint(senha: str = Query(...)):
+    score, tempo = teste_senha(senha)
+    return {'score': score, 'time': tempo}
 
 @app.get("/password")
 def gerar_senha(
@@ -134,7 +146,9 @@ def gerar_senha(
             separador = random.choice(".") # random.choice("#!@.$%&*")
             senha = separador.join(frase_secreta)
 
-        return {'password': senha}
+        teste = teste_senha(senha)
+
+        return {'password': senha, 'score': teste[0], 'time': teste[1]}
 
     except Exception as e:
         if isinstance(e, HTTPException):

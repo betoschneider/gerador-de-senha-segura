@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
 
             if (response.ok) {
-                showResult(data.password);
+                showResult(data.password, data.time, data.score);
             } else {
                 alert('Erro: ' + (data.error || 'Falha desconhecida'));
             }
@@ -87,12 +87,24 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Show Result
-    function showResult(text) {
+    function showResult(text, crackTime, score) {
         const container = document.getElementById('result-container');
         const input = document.getElementById('result-output');
+        const crackEl = document.getElementById('crack-time');
 
         container.style.display = 'block';
         input.value = text;
+
+        if (crackTime) {
+            crackEl.textContent = `⏱ Tempo estimado para quebrar (ataque offline): ${crackTime}`;
+            crackEl.classList.remove('score-weak', 'score-medium', 'score-strong');
+            if (score < 3)       crackEl.classList.add('score-weak');
+            else if (score === 3) crackEl.classList.add('score-medium');
+            else                  crackEl.classList.add('score-strong');
+            crackEl.style.display = 'block';
+        } else {
+            crackEl.style.display = 'none';
+        }
 
         // Scroll to result on mobile
         container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });

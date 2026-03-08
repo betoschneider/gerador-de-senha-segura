@@ -367,6 +367,25 @@ select:focus {
     opacity: 1;
 }
 
+.crack-time {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.82rem;
+    margin-top: 0.75rem;
+    display: none;
+    font-weight: 500;
+    transition: color 0.3s;
+}
+
+.crack-time.score-weak {
+    color: #ef4444;
+}
+
+/*
+.crack-time.score-medium { color: #f59e0b; }
+.crack-time.score-strong { color: #10b981; }
+*/
+
 /* Footer */
 footer {
     margin-top: 2rem;
